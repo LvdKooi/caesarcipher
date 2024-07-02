@@ -36,11 +36,11 @@ public class Cipherer implements CipheringService {
     }
 
     private static Map<Integer, String> getAlphabet(int offset) {
-        var alphabetSet = Arrays.stream("abcdefghijklmnopqrstuvwxyz".split("")).toList();
+        var alphabetList = Arrays.stream("abcdefghijklmnopqrstuvwxyz".split("")).toList();
 
         return IntStream.rangeClosed(1, 26)
                 .boxed()
-                .collect(Collectors.toMap(Function.identity(), i -> alphabetSet.get(calculateOffset(i, offset) - 1)));
+                .collect(Collectors.toMap(Function.identity(), i -> alphabetList.get(calculateOffset(i, offset) - 1)));
     }
 
     private static int calculateOffset(int i, int offset) {
