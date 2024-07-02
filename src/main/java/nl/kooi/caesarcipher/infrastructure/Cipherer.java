@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -19,7 +20,7 @@ public class Cipherer implements CipheringService {
         var cipheredAlphabet = getAlphabet(offset);
 
         return Arrays.stream(input.split(""))
-                .map(letter -> alphabet.entrySet().stream().filter(entry -> entry.getValue().equals(letter)).map(Map.Entry::getKey).map(index -> cipheredAlphabet.get(calculateIndex(index, offset))).peek(System.out::println).findAny().orElse(letter))
+                .map(letter -> alphabet.entrySet().stream().filter(entry -> entry.getValue().equals(letter)).map(Map.Entry::getKey).map(cipheredAlphabet::get).peek(System.out::println).findAny().orElse(letter))
                 .collect(Collectors.joining());
     }
 
@@ -28,27 +29,16 @@ public class Cipherer implements CipheringService {
 
         return IntStream.rangeClosed(1, 26)
                 .boxed()
-                .map(i -> i - 1)
-                .map(calculateOffset(offset))
-                .collect(Collectors.toMap(i -> i + 1, alphabetSet::get));
+                .collect(Collectors.toMap(Function.identity(), i -> alphabetSet.get(calculateOffset(offset).apply(i) -1)));
     }
 
     private static UnaryOperator<Integer> calculateOffset(int offset) {
         return i -> {
             var result = i + offset;
-            if (result > 25) {
+            if (result > 26) {
                 return result - 26;
             }
             return result;
         };
-    }
-
-
-    private static int calculateIndex(int i, int offset) {
-        var result = i + offset;
-        if (result > 26) {
-            return result - 26;
-        }
-        return result;
     }
 }
