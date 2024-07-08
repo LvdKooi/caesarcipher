@@ -15,7 +15,6 @@ class CiphererTest {
 
     @Test
     void testCipher_offset_1() {
-
         var result = cipheringService.cipher("hallo", 1);
 
         assertThat(result)
@@ -24,8 +23,16 @@ class CiphererTest {
     }
 
     @Test
-    void testCipher_offset_25() {
+    void testDecipher_offset_1() {
+        var result = cipheringService.decipher("ibmmp", 1);
 
+        assertThat(result)
+                .isNotNull()
+                .isEqualTo("hallo");
+    }
+
+    @Test
+    void testCipher_offset_25() {
         var result = cipheringService.cipher("hallo", 25);
 
         assertThat(result)
@@ -34,8 +41,16 @@ class CiphererTest {
     }
 
     @Test
-    void testCipher_offset_26_should_return_same_word() {
+    void testDecipher_offset_25() {
+        var result = cipheringService.decipher("gzkkn", 25);
 
+        assertThat(result)
+                .isNotNull()
+                .isEqualTo("hallo");
+    }
+
+    @Test
+    void testCipher_offset_26_should_return_same_word() {
         var result = cipheringService.cipher("hallo", 26);
 
         assertThat(result)
@@ -43,5 +58,12 @@ class CiphererTest {
                 .isEqualTo("hallo");
     }
 
+    @Test
+    void testDecipher_offset_26_should_return_same_word() {
+        var result = cipheringService.decipher("hallo", 26);
 
+        assertThat(result)
+                .isNotNull()
+                .isEqualTo("hallo");
+    }
 }
