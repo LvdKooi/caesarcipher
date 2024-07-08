@@ -1,7 +1,8 @@
 package nl.kooi.caesarcipher.infrastructure;
 
-import nl.kooi.caesarcipher.core.port.CipheringService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
@@ -11,20 +12,22 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 class CiphererTest {
 
     @Autowired
-    private CipheringService cipheringService;
+    private Cipherer cipherer;
 
-    @Test
-    void testCipher_offset_1() {
-        var result = cipheringService.cipher("hallo", 1);
+    @ParameterizedTest
+    @ValueSource(strings = {"hallo", "HALLO", "HaLlo"})
+    void testCipher_offset_1(String text) {
+        var result = cipherer.cipher(text, 1);
 
         assertThat(result)
                 .isNotNull()
                 .isEqualTo("ibmmp");
     }
 
-    @Test
-    void testDecipher_offset_1() {
-        var result = cipheringService.decipher("ibmmp", 1);
+    @ParameterizedTest
+    @ValueSource(strings = {"ibmmp", "IBMMP", "IbMmP"})
+    void testDecipher_offset_1(String text) {
+        var result = cipherer.decipher(text, 1);
 
         assertThat(result)
                 .isNotNull()
@@ -33,7 +36,7 @@ class CiphererTest {
 
     @Test
     void testCipher_offset_25() {
-        var result = cipheringService.cipher("hallo", 25);
+        var result = cipherer.cipher("hallo", 25);
 
         assertThat(result)
                 .isNotNull()
@@ -42,7 +45,7 @@ class CiphererTest {
 
     @Test
     void testDecipher_offset_25() {
-        var result = cipheringService.decipher("gzkkn", 25);
+        var result = cipherer.decipher("gzkkn", 25);
 
         assertThat(result)
                 .isNotNull()
@@ -51,7 +54,7 @@ class CiphererTest {
 
     @Test
     void testCipher_offset_26_should_return_same_word() {
-        var result = cipheringService.cipher("hallo", 26);
+        var result = cipherer.cipher("hallo", 26);
 
         assertThat(result)
                 .isNotNull()
@@ -60,7 +63,7 @@ class CiphererTest {
 
     @Test
     void testDecipher_offset_26_should_return_same_word() {
-        var result = cipheringService.decipher("hallo", 26);
+        var result = cipherer.decipher("hallo", 26);
 
         assertThat(result)
                 .isNotNull()

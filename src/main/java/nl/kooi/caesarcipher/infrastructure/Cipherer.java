@@ -19,6 +19,7 @@ public class Cipherer implements CipheringService {
     @Override
     public String cipher(String input, int offset) {
         return Arrays.stream(input.split(""))
+                .map(String::toLowerCase)
                 .map(mapToOffsetLetter(ALPHABET, getAlphabet(offset)))
                 .collect(Collectors.joining());
     }
@@ -26,6 +27,7 @@ public class Cipherer implements CipheringService {
     @Override
     public String decipher(String input, int offset) {
         return Arrays.stream(input.split(""))
+                .map(String::toLowerCase)
                 .map(mapToOffsetLetter(getAlphabet(offset), ALPHABET))
                 .collect(Collectors.joining());
     }
