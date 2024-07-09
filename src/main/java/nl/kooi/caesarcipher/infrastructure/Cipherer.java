@@ -18,17 +18,20 @@ public class Cipherer implements CipheringService {
 
     @Override
     public String cipher(String input, int offset) {
-        return Arrays.stream(input.split(""))
-                .map(String::toLowerCase)
-                .map(mapToOffsetLetter(ALPHABET, getAlphabet(offset)))
-                .collect(Collectors.joining());
+        return translate(input, ALPHABET, getAlphabet(offset));
     }
 
     @Override
     public String decipher(String input, int offset) {
+        return translate(input, getAlphabet(offset), ALPHABET);
+    }
+
+    private static String translate(String input,
+                                    Map<Integer, String> fromAlphabet,
+                                    Map<Integer, String> toAlphabet) {
         return Arrays.stream(input.split(""))
                 .map(String::toLowerCase)
-                .map(mapToOffsetLetter(getAlphabet(offset), ALPHABET))
+                .map(mapToOffsetLetter(fromAlphabet, toAlphabet))
                 .collect(Collectors.joining());
     }
 
@@ -59,6 +62,4 @@ public class Cipherer implements CipheringService {
                 .map(result -> result - 26)
                 .orElse(i + offset);
     }
-
-
 }
