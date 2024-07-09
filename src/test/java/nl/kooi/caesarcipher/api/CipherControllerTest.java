@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import nl.kooi.caesarcipher.api.dto.CipherRequestDTO;
 import nl.kooi.caesarcipher.api.dto.CipheringResultDTO;
+import nl.kooi.caesarcipher.core.exception.CipheringException;
 import nl.kooi.caesarcipher.core.model.CipheringResult;
 import nl.kooi.caesarcipher.core.usecase.CipherUseCase;
 import nl.kooi.caesarcipher.core.usecase.command.CipherCommand;
-import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.http.ProblemDetail;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
 
@@ -53,7 +54,7 @@ class CipherControllerTest {
     }
 
     @Test
-    void shouldPassRequestUseCaseAndReturnResult_deipher() {
+    void shouldPassRequestUseCaseAndReturnResult_decipher() {
         when(useCase.decipher(any(CipherCommand.class)))
                 .thenReturn(new CipheringResult("translation", "input", 1));
 
@@ -63,6 +64,44 @@ class CipherControllerTest {
         verify(useCase, times(1)).decipher(commandCaptor.capture());
 
         assertCommandAndResponse(result);
+    }
+
+    @Test
+    void shouldReturnA400WhenCipherExceptionIsThrown() {
+        when(useCase.cipher(any(CipherCommand.class)))
+                .thenThrow(new CipheringException("Something went wrong"));
+        var cipherRequest = new CipherRequestDTO("hi", 1);
+        var result = getResult(cipherRequest, "cipher", status().isBadRequest(), ProblemDetail.class);
+
+        assertThat(result)
+                .isNotNull()
+                .extracting(
+                        ProblemDetail::getStatus,
+                        ProblemDetail::getDetail
+                )
+                .containsExactly(
+                        400,
+                        "Something went wrong"
+                );
+    }
+
+    @Test
+    void shouldReturnA500WhenARuntimeExceptionIsThrown() {
+        when(useCase.cipher(any(CipherCommand.class)))
+                .thenThrow(new RuntimeException("Something went wrong"));
+        var cipherRequest = new CipherRequestDTO("hi", 1);
+        var result = getResult(cipherRequest, "cipher", status().isInternalServerError(), ProblemDetail.class);
+
+        assertThat(result)
+                .isNotNull()
+                .extracting(
+                        ProblemDetail::getStatus,
+                        ProblemDetail::getDetail
+                )
+                .containsExactly(
+                        500,
+                        "Something went wrong"
+                );
     }
 
     @SneakyThrows
@@ -95,14 +134,9 @@ class CipherControllerTest {
                         "hi"
                 );
 
-        AssertionsForClassTypes.assertThat(result)
+        assertThat(result)
                 .isNotNull()
                 .extracting(CipheringResultDTO::result)
                 .matches("translation"::equals);
     }
-
-    @Test
-    void shouldPassRequestUseCaseAndReturnResult_decipher() {
-    }
-
 }
